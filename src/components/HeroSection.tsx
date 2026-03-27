@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 const HONEY_VIDEO_URL =
-  "https://videos.pexels.com/video-files/5247630/5247630-hd_1920_1080_30fps.mp4";
+  "https://videos.pexels.com/video-files/2539658/2539658-hd_1920_1080_30fps.mp4";
 
 const HeroSection = ({ onOrderClick }: { onOrderClick: () => void }) => {
   return (
