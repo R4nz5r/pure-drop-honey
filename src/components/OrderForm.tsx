@@ -69,31 +69,124 @@ const OrderForm = forwardRef<HTMLDivElement, OrderFormProps>(({ preselectedVaria
     }`;
 
   if (submitted) {
+    const selectedVariantLabel = productVariants.find((v) => v.id === submittedData?.variant)?.label || submittedData?.variant;
     return (
       <div ref={ref} className="section-padding bg-card">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="container mx-auto max-w-md text-center"
+          className="container mx-auto max-w-lg"
         >
-          <div className="rounded-2xl border-2 border-secondary/30 bg-background p-8 shadow-lg">
+          {/* Header */}
+          <div className="text-center">
             <CheckCircle2 className="mx-auto h-16 w-16 text-secondary" />
-            <h2 className="mt-4 text-2xl font-bold font-bengali text-foreground">অর্ডার সফল হয়েছে! 🎉</h2>
-            <p className="mt-2 text-muted-foreground">Your order has been placed successfully</p>
-            
-            <div className="mt-6 rounded-xl bg-accent p-4 text-left text-sm space-y-2">
-              <p><span className="font-semibold">Order ID:</span> {orderId}</p>
-              <p><span className="font-semibold">নাম:</span> {submittedData?.name}</p>
-              <p><span className="font-semibold">ফোন:</span> {submittedData?.phone}</p>
-              <p><span className="font-semibold">ঠিকানা:</span> {submittedData?.address}</p>
-              <p><span className="font-semibold">মোট মূল্য:</span> ৳{totalPrice}</p>
-              <p><span className="font-semibold">পেমেন্ট:</span> Cash on Delivery</p>
-            </div>
-
-            <p className="mt-4 text-sm text-muted-foreground">
-              📞 আমরা শীঘ্রই আপনাকে কল করব অর্ডার নিশ্চিত করতে
+            <h2 className="mt-4 text-2xl font-bold font-bengali text-foreground">
+              আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে!
+            </h2>
+            <p className="mt-2 text-muted-foreground font-bengali">
+              ধন্যবাদ! আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব
             </p>
           </div>
+
+          {/* Order Details Card */}
+          <div className="mt-6 rounded-2xl border border-border bg-background p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold font-bengali text-foreground">অর্ডার বিবরণ</h3>
+              <span className="rounded-full border border-secondary/30 bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary">
+                অর্ডার আইডি: {orderId}
+              </span>
+            </div>
+
+            <div className="divide-y divide-border text-sm">
+              <div className="flex justify-between py-3">
+                <span className="text-muted-foreground font-bengali">গ্রাহকের নাম</span>
+                <span className="font-medium text-foreground text-right">{submittedData?.name}</span>
+              </div>
+              <div className="flex justify-between py-3">
+                <span className="text-muted-foreground font-bengali">মোবাইল নম্বর</span>
+                <span className="font-medium text-foreground">{submittedData?.phone}</span>
+              </div>
+              <div className="flex justify-between py-3">
+                <span className="text-muted-foreground font-bengali">ডেলিভারি ঠিকানা</span>
+                <span className="font-medium text-foreground text-right max-w-[200px]">{submittedData?.address}</span>
+              </div>
+              <div className="flex justify-between py-3">
+                <span className="text-muted-foreground font-bengali">পণ্য</span>
+                <span className="font-medium text-foreground">{selectedVariantLabel}</span>
+              </div>
+              <div className="flex justify-between py-3">
+                <span className="text-muted-foreground font-bengali">পরিমাণ</span>
+                <span className="font-medium text-foreground">{submittedData?.quantity}</span>
+              </div>
+              <div className="flex justify-between py-3">
+                <span className="font-bold font-bengali text-foreground">মোট মূল্য</span>
+                <span className="text-xl font-bold text-secondary">৳{totalPrice.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between py-3">
+                <span className="text-muted-foreground font-bengali">💳 ক্যাশ অন ডেলিভারি</span>
+              </div>
+            </div>
+          </div>
+
+          {/* What happens next */}
+          <div className="mt-6 rounded-2xl border border-border bg-background p-6 shadow-sm">
+            <h4 className="text-base font-bold font-bengali text-foreground mb-4">এরপর কী হবে?</h4>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary/10">
+                  📞
+                </div>
+                <div>
+                  <p className="font-semibold text-sm font-bengali text-foreground">১ ঘণ্টার মধ্যে কনফার্মেশন কল পাবেন</p>
+                  <p className="text-xs text-muted-foreground">এখনই</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary/10">
+                  📦
+                </div>
+                <div>
+                  <p className="font-semibold text-sm font-bengali text-foreground">২-৩ দিনের মধ্যে পণ্য পৌঁছে যাবে</p>
+                  <p className="text-xs text-muted-foreground">শীঘ্রই</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary/10">
+                  💰
+                </div>
+                <div>
+                  <p className="font-semibold text-sm font-bengali text-foreground">পণ্য হাতে পেয়ে টাকা দিবেন</p>
+                  <p className="text-xs text-muted-foreground">ডেলিভারিতে</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => { setSubmitted(false); setSubmittedData(null); }}
+              className="rounded-xl honey-gradient py-3 text-sm font-bold text-primary-foreground shadow-md"
+            >
+              আরেকটি অর্ডার করুন →
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => window.open("tel:01XXXXXXXXX")}
+              className="rounded-xl border-2 border-secondary/30 bg-background py-3 text-sm font-bold text-foreground"
+            >
+              🗨 সাপোর্টে যোগাযোগ
+            </motion.button>
+          </div>
+
+          {/* Support info */}
+          <p className="mt-4 text-center text-xs text-muted-foreground font-bengali">
+            কোন সমস্যা হলে আমাদের কল করুন: <span className="font-bold text-foreground">01XXXXXXXXX</span>
+            <br />(সকাল ৯টা - রাত ৯টা)
+          </p>
         </motion.div>
       </div>
     );
