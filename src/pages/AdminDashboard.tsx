@@ -65,6 +65,11 @@ const AdminDashboard = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
+  // Edit order state
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [editOrderForm, setEditOrderForm] = useState({ customer_name: "", phone: "", address: "", quantity: 1 });
+  const [editOrderLoading, setEditOrderLoading] = useState(false);
+
   // Variants state
   const [variants, setVariants] = useState<Variant[]>([]);
   const [variantsLoading, setVariantsLoading] = useState(false);
@@ -202,6 +207,45 @@ const AdminDashboard = () => {
     }
   };
 
+  const openEditOrder = (order: Order) => {
+    setEditingOrder(order);
+    setEditOrderForm({
+      customer_name: order.customer_name,
+      phone: order.phone,
+      address: order.address,
+      quantity: order.quantity,
+    });
+  };
+
+  const handleEditOrder = async () => {
+    if (!editingOrder) return;
+    setEditOrderLoading(true);
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-orders`;
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          ...getAuthHeaders(),
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ order_id: editingOrder.id, ...editOrderForm }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Order updated!");
+        setEditingOrder(null);
+        fetchOrders();
+      } else {
+        toast.error(result.message);
+      }
+    } catch {
+      toast.error("Failed to update order");
+    } finally {
+      setEditOrderLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/admin/login");
@@ -295,6 +339,73 @@ const AdminDashboard = () => {
                 {pwLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Updating...</> : "Update Password"}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Order Modal */}
+      {editingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-card border border-border p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground">Edit Order — {editingOrder.order_ref}</h2>
+              <button onClick={() => setEditingOrder(null)} className="text-muted-foreground hover:text-foreground">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium text-foreground">Customer Name</label>
+                <input
+                  value={editOrderForm.customer_name}
+                  onChange={(e) => setEditOrderForm(f => ({ ...f, customer_name: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Phone</label>
+                <input
+                  value={editOrderForm.phone}
+                  onChange={(e) => setEditOrderForm(f => ({ ...f, phone: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Address</label>
+                <textarea
+                  value={editOrderForm.address}
+                  onChange={(e) => setEditOrderForm(f => ({ ...f, address: e.target.value }))}
+                  rows={2}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Quantity</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={editOrderForm.quantity}
+                  onChange={(e) => setEditOrderForm(f => ({ ...f, quantity: Number(e.target.value) }))}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={handleEditOrder}
+                  disabled={editOrderLoading}
+                  className="flex-1 rounded-xl bg-primary py-2.5 font-bold text-primary-foreground disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {editOrderLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving...</> : "Save Changes"}
+                </button>
+                <button
+                  onClick={() => setEditingOrder(null)}
+                  className="rounded-xl border border-input px-4 py-2.5 text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -404,15 +515,24 @@ const AdminDashboard = () => {
                             {new Date(order.created_at).toLocaleDateString("bn-BD")}
                           </td>
                           <td className="px-4 py-3">
-                            <button
-                              onClick={() => {
-                                // Could open a detail modal
-                                toast.info(`Order: ${order.order_ref}\nAddress: ${order.address}`);
-                              }}
-                              className="text-muted-foreground hover:text-foreground"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => openEditOrder(order)}
+                                className="text-muted-foreground hover:text-foreground"
+                                title="Edit order"
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  toast.info(`Order: ${order.order_ref}\nAddress: ${order.address}`);
+                                }}
+                                className="text-muted-foreground hover:text-foreground"
+                                title="View details"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
