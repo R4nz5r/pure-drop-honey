@@ -7,6 +7,7 @@ const HeroSection = ({ onOrderClick }: { onOrderClick: () => void }) => {
     <section className="relative overflow-hidden bg-background">
       {/* Warm gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-accent/60 via-background to-accent/30" />
+      <FlyingBees />
       
       <div className="container relative mx-auto section-padding">
         <div className="flex flex-col-reverse items-center gap-8 lg:flex-row lg:gap-16">
