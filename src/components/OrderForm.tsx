@@ -28,6 +28,7 @@ interface OrderFormProps {
 const OrderForm = forwardRef<HTMLDivElement, OrderFormProps>(({ preselectedVariant }, ref) => {
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState("");
+  const [submittedData, setSubmittedData] = useState<OrderData | null>(null);
 
   const {
     register,
@@ -56,6 +57,7 @@ const OrderForm = forwardRef<HTMLDivElement, OrderFormProps>(({ preselectedVaria
     await new Promise((r) => setTimeout(r, 1000));
     const id = "MC-" + Date.now().toString(36).toUpperCase();
     setOrderId(id);
+    setSubmittedData(data);
     setSubmitted(true);
   };
 
@@ -81,6 +83,9 @@ const OrderForm = forwardRef<HTMLDivElement, OrderFormProps>(({ preselectedVaria
             
             <div className="mt-6 rounded-xl bg-accent p-4 text-left text-sm space-y-2">
               <p><span className="font-semibold">Order ID:</span> {orderId}</p>
+              <p><span className="font-semibold">নাম:</span> {submittedData?.name}</p>
+              <p><span className="font-semibold">ফোন:</span> {submittedData?.phone}</p>
+              <p><span className="font-semibold">ঠিকানা:</span> {submittedData?.address}</p>
               <p><span className="font-semibold">মোট মূল্য:</span> ৳{totalPrice}</p>
               <p><span className="font-semibold">পেমেন্ট:</span> Cash on Delivery</p>
             </div>
