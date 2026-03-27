@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Gift, Truck, BookOpen } from "lucide-react";
+import honeyImg from "@/assets/honey-hero.png";
 
 const variants = [
   { size: "250g", price: 450, originalPrice: 550, popular: false },
@@ -47,6 +48,7 @@ const OfferSection = ({ onOrderClick }: { onOrderClick: (variant?: string) => vo
                   সবচেয়ে জনপ্রিয়
                 </div>
               )}
+              <img src={honeyImg} alt="মৌচাক organic honey" className="mx-auto h-24 w-24 object-contain mb-2" />
               <p className="text-3xl font-bold text-foreground mt-2">{v.size}</p>
               <div className="mt-4">
                 <span className="text-lg text-muted-foreground line-through">৳{v.originalPrice}</span>
