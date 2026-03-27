@@ -376,7 +376,7 @@ const AdminDashboard = () => {
                       </tr>
                     ) : orders.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No orders found</td>
+                        <td colSpan={9} className="px-4 py-8 text-center text-muted-foreground">No orders found</td>
                       </tr>
                     ) : (
                       orders.map((order) => (
