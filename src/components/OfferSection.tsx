@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Gift, Truck, BookOpen } from "lucide-react";
+import honeyImg from "@/assets/honey-hero.png";
 
 const variants = [
   { size: "250g", price: 450, originalPrice: 550, popular: false },
