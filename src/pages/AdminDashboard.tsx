@@ -359,6 +359,7 @@ const AdminDashboard = () => {
                       <th className="px-4 py-3 text-left font-medium">Order</th>
                       <th className="px-4 py-3 text-left font-medium">Customer</th>
                       <th className="px-4 py-3 text-left font-medium">Phone</th>
+                      <th className="px-4 py-3 text-left font-medium">Address</th>
                       <th className="px-4 py-3 text-left font-medium">Product</th>
                       <th className="px-4 py-3 text-left font-medium">Total</th>
                       <th className="px-4 py-3 text-left font-medium">Status</th>
