@@ -207,6 +207,45 @@ const AdminDashboard = () => {
     }
   };
 
+  const openEditOrder = (order: Order) => {
+    setEditingOrder(order);
+    setEditOrderForm({
+      customer_name: order.customer_name,
+      phone: order.phone,
+      address: order.address,
+      quantity: order.quantity,
+    });
+  };
+
+  const handleEditOrder = async () => {
+    if (!editingOrder) return;
+    setEditOrderLoading(true);
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-orders`;
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          ...getAuthHeaders(),
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ order_id: editingOrder.id, ...editOrderForm }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Order updated!");
+        setEditingOrder(null);
+        fetchOrders();
+      } else {
+        toast.error(result.message);
+      }
+    } catch {
+      toast.error("Failed to update order");
+    } finally {
+      setEditOrderLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/admin/login");
