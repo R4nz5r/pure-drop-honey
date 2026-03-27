@@ -448,15 +448,24 @@ const AdminDashboard = () => {
                             {new Date(order.created_at).toLocaleDateString("bn-BD")}
                           </td>
                           <td className="px-4 py-3">
-                            <button
-                              onClick={() => {
-                                // Could open a detail modal
-                                toast.info(`Order: ${order.order_ref}\nAddress: ${order.address}`);
-                              }}
-                              className="text-muted-foreground hover:text-foreground"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => openEditOrder(order)}
+                                className="text-muted-foreground hover:text-foreground"
+                                title="Edit order"
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  toast.info(`Order: ${order.order_ref}\nAddress: ${order.address}`);
+                                }}
+                                className="text-muted-foreground hover:text-foreground"
+                                title="View details"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
