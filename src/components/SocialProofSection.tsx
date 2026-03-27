@@ -68,9 +68,12 @@ const SocialProofSection = () => {
                 ))}
               </div>
               <p className="mt-3 text-sm font-bengali text-foreground leading-relaxed">"{t.review}"</p>
-              <div className="mt-4 border-t border-border pt-3">
-                <p className="font-semibold font-bengali text-foreground">{t.name}</p>
-                <p className="text-xs text-muted-foreground">{t.location}</p>
+              <div className="mt-4 border-t border-border pt-3 flex items-center gap-3">
+                <img src={t.image} alt={t.name} loading="lazy" width={40} height={40} className="h-10 w-10 rounded-full object-cover border-2 border-primary/20" />
+                <div>
+                  <p className="font-semibold font-bengali text-foreground">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.location}</p>
+                </div>
               </div>
             </motion.div>
           ))}
