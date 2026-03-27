@@ -67,10 +67,10 @@ const SolutionSection = () => {
           className="mt-16"
         >
           <h3 className="text-center text-xl font-bold text-foreground mb-8">আমাদের প্রক্রিয়া</h3>
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-2">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:justify-center sm:gap-2">
             {steps.map((s, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <div className="flex flex-col items-center rounded-2xl bg-accent p-4 w-36 text-center shadow-sm">
+              <div key={i} className="flex items-center gap-2 sm:flex-row">
+                <div className="flex flex-col items-center rounded-2xl bg-accent p-4 w-full sm:w-36 text-center shadow-sm">
                   <span className="text-3xl">{s.emoji}</span>
                   <p className="mt-2 text-sm font-semibold font-bengali text-foreground">{s.label}</p>
                   <p className="text-xs text-muted-foreground">{s.sub}</p>
