@@ -1,5 +1,8 @@
 import { motion } from "framer-motion";
 import { Star, ShieldCheck, Leaf, Truck, BadgeCheck } from "lucide-react";
+import reviewerRahela from "@/assets/reviewer-rahela.png";
+import reviewerKarim from "@/assets/reviewer-karim.png";
+import reviewerFatima from "@/assets/reviewer-fatima.png";
 
 const testimonials = [
   {
@@ -7,18 +10,21 @@ const testimonials = [
     location: "ঢাকা",
     review: "আমার পরিবারের সবাই এই মধু খায়। বাচ্চারাও খুব পছন্দ করে। সত্যিকারের খাঁটি মধু!",
     stars: 5,
+    image: reviewerRahela,
   },
   {
     name: "আব্দুল করিম",
     location: "চট্টগ্রাম",
     review: "অনেক জায়গা থেকে মধু কিনেছি, কিন্তু মৌচাকের মধু একদম আলাদা। স্বাদ ও গন্ধ অসাধারণ।",
     stars: 5,
+    image: reviewerKarim,
   },
   {
     name: "ফাতিমা আক্তার",
     location: "রাজশাহী",
     review: "ক্যাশ অন ডেলিভারি হওয়ায় কোনো ঝামেলা নেই। ৭ দিনের গ্যারান্টি আছে, তাই নির্ভয়ে অর্ডার করেছি।",
     stars: 5,
+    image: reviewerFatima,
   },
 ];
 
@@ -62,9 +68,12 @@ const SocialProofSection = () => {
                 ))}
               </div>
               <p className="mt-3 text-sm font-bengali text-foreground leading-relaxed">"{t.review}"</p>
-              <div className="mt-4 border-t border-border pt-3">
-                <p className="font-semibold font-bengali text-foreground">{t.name}</p>
-                <p className="text-xs text-muted-foreground">{t.location}</p>
+              <div className="mt-4 border-t border-border pt-3 flex items-center gap-3">
+                <img src={t.image} alt={t.name} loading="lazy" width={40} height={40} className="h-10 w-10 rounded-full object-cover border-2 border-primary/20" />
+                <div>
+                  <p className="font-semibold font-bengali text-foreground">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.location}</p>
+                </div>
               </div>
             </motion.div>
           ))}
