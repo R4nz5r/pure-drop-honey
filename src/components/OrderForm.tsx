@@ -57,6 +57,7 @@ const OrderForm = forwardRef<HTMLDivElement, OrderFormProps>(({ preselectedVaria
     await new Promise((r) => setTimeout(r, 1000));
     const id = "MC-" + Date.now().toString(36).toUpperCase();
     setOrderId(id);
+    setSubmittedData(data);
     setSubmitted(true);
   };
 
