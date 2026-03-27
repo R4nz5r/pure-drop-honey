@@ -390,6 +390,14 @@ const AdminDashboard = () => {
                   className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
+              <div className="rounded-xl bg-muted/50 p-3 flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Unit Price</span>
+                <span className="font-bold text-foreground">৳{editingOrder.unit_price.toLocaleString()}</span>
+              </div>
+              <div className="rounded-xl bg-primary/10 p-3 flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">Total Price</span>
+                <span className="text-lg font-bold text-primary">৳{(editingOrder.unit_price * editOrderForm.quantity).toLocaleString()}</span>
+              </div>
               <div className="flex gap-2 pt-2">
                 <button
                   onClick={handleEditOrder}
