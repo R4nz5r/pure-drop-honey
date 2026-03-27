@@ -13,7 +13,7 @@ const bonuses = [
   { icon: Truck, text: "🚚 প্রথম ২০ অর্ডারে ফ্রি ডেলিভারি", sub: "Free Delivery for First 20 Orders" },
 ];
 
-const OfferSection = ({ onOrderClick }: { onOrderClick: () => void }) => {
+const OfferSection = ({ onOrderClick }: { onOrderClick: (variant?: string) => void }) => {
   return (
     <section className="section-padding bg-background">
       <div className="container mx-auto max-w-5xl">
