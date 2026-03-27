@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   const orderRef = useRef<HTMLDivElement>(null);
+  const [selectedVariant, setSelectedVariant] = useState("");
   const [showSticky, setShowSticky] = useState(true);
 
   const scrollToOrder = (variant?: string) => {
