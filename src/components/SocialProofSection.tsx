@@ -1,5 +1,8 @@
 import { motion } from "framer-motion";
 import { Star, ShieldCheck, Leaf, Truck, BadgeCheck } from "lucide-react";
+import reviewerRahela from "@/assets/reviewer-rahela.png";
+import reviewerKarim from "@/assets/reviewer-karim.png";
+import reviewerFatima from "@/assets/reviewer-fatima.png";
 
 const testimonials = [
   {
@@ -7,6 +10,7 @@ const testimonials = [
     location: "ঢাকা",
     review: "আমার পরিবারের সবাই এই মধু খায়। বাচ্চারাও খুব পছন্দ করে। সত্যিকারের খাঁটি মধু!",
     stars: 5,
+    image: reviewerRahela,
   },
   {
     name: "আব্দুল করিম",
