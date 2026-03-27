@@ -1,16 +1,32 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useRef } from "react";
+import HeroSection from "@/components/HeroSection";
+import ProblemSection from "@/components/ProblemSection";
+import SolutionSection from "@/components/SolutionSection";
+import SocialProofSection from "@/components/SocialProofSection";
+import OfferSection from "@/components/OfferSection";
+import CTASection from "@/components/CTASection";
+import OrderForm from "@/components/OrderForm";
+import Footer from "@/components/Footer";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const orderRef = useRef<HTMLDivElement>(null);
+
+  const scrollToOrder = () => {
+    orderRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen">
+      <HeroSection onOrderClick={scrollToOrder} />
+      <ProblemSection />
+      <SolutionSection />
+      <SocialProofSection />
+      <OfferSection onOrderClick={scrollToOrder} />
+      <CTASection onOrderClick={scrollToOrder} />
+      <OrderForm ref={orderRef} />
+      <Footer />
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
