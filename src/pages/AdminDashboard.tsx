@@ -370,7 +370,7 @@ const AdminDashboard = () => {
                   <tbody className="divide-y divide-border">
                     {ordersLoading ? (
                       <tr>
-                        <td colSpan={8} className="px-4 py-8 text-center">
+                        <td colSpan={9} className="px-4 py-8 text-center">
                           <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
                         </td>
                       </tr>
