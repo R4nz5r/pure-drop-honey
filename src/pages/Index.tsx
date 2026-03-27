@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import HeroSection from "@/components/HeroSection";
 import ProblemSection from "@/components/ProblemSection";
 import SolutionSection from "@/components/SolutionSection";
@@ -11,11 +11,24 @@ import Footer from "@/components/Footer";
 const Index = () => {
   const orderRef = useRef<HTMLDivElement>(null);
   const [selectedVariant, setSelectedVariant] = useState("");
+  const [showSticky, setShowSticky] = useState(true);
 
   const scrollToOrder = (variant?: string) => {
     if (variant) setSelectedVariant(variant);
+    setShowSticky(false);
     orderRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  useEffect(() => {
+    const form = orderRef.current;
+    if (!form) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setShowSticky(!entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    obs.observe(form);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -29,12 +42,14 @@ const Index = () => {
       <Footer />
 
       {/* Sticky mobile CTA */}
-      <button
-        onClick={() => scrollToOrder()}
-        className="fixed bottom-4 left-4 right-4 z-50 md:hidden rounded-full honey-gradient py-3.5 text-base font-bold text-primary-foreground shadow-xl animate-pulse-glow"
-      >
-        🍯 Order Now
-      </button>
+      {showSticky && (
+        <button
+          onClick={() => scrollToOrder()}
+          className="fixed bottom-3 left-4 right-4 z-50 md:hidden rounded-full honey-gradient py-2.5 text-sm font-bold text-primary-foreground shadow-lg"
+        >
+          🍯 Order Now
+        </button>
+      )}
     </div>
   );
 };
