@@ -1,16 +1,16 @@
-import { useState, forwardRef } from "react";
+import { useState, useEffect, forwardRef } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ShieldCheck, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
 
 const orderSchema = z.object({
-  name: z.string().trim().min(2, "নাম লিখুন").max(100),
+  name: z.string().trim().min(2, "নাম লিখুন (কমপক্ষে ২ অক্ষর)").max(100, "নাম ১০০ অক্ষরের মধ্যে হতে হবে"),
   phone: z.string().trim().regex(/^01[3-9]\d{8}$/, "সঠিক ফোন নম্বর দিন (01XXXXXXXXX)"),
-  address: z.string().trim().min(5, "সম্পূর্ণ ঠিকানা লিখুন").max(300),
+  address: z.string().trim().min(5, "সম্পূর্ণ ঠিকানা লিখুন (কমপক্ষে ৫ অক্ষর)").max(300, "ঠিকানা ৩০০ অক্ষরের মধ্যে হতে হবে"),
   variant: z.string().min(1, "সাইজ নির্বাচন করুন"),
-  quantity: z.number().min(1).max(20),
+  quantity: z.number({ invalid_type_error: "পরিমাণ একটি সংখ্যা হতে হবে" }).min(1, "কমপক্ষে ১টি নির্বাচন করুন").max(20, "সর্বোচ্চ ২০টি অর্ডার করা যাবে"),
 });
 
 type OrderData = z.infer<typeof orderSchema>;
@@ -21,7 +21,11 @@ const productVariants = [
   { id: "1kg", label: "1kg — ৳1,500", price: 1500 },
 ];
 
-const OrderForm = forwardRef<HTMLDivElement>((_, ref) => {
+interface OrderFormProps {
+  preselectedVariant?: string;
+}
+
+const OrderForm = forwardRef<HTMLDivElement, OrderFormProps>(({ preselectedVariant }, ref) => {
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState("");
 
@@ -29,11 +33,19 @@ const OrderForm = forwardRef<HTMLDivElement>((_, ref) => {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting },
+    setValue,
+    formState: { errors, isSubmitting, touchedFields },
   } = useForm<OrderData>({
     resolver: zodResolver(orderSchema),
     defaultValues: { quantity: 1, variant: "" },
+    mode: "onTouched",
   });
+
+  useEffect(() => {
+    if (preselectedVariant) {
+      setValue("variant", preselectedVariant, { shouldValidate: true });
+    }
+  }, [preselectedVariant, setValue]);
 
   const selectedVariant = watch("variant");
   const quantity = watch("quantity");
@@ -41,12 +53,18 @@ const OrderForm = forwardRef<HTMLDivElement>((_, ref) => {
   const totalPrice = selectedPrice * (quantity || 1);
 
   const onSubmit = async (data: OrderData) => {
-    // Simulate order creation
     await new Promise((r) => setTimeout(r, 1000));
     const id = "MC-" + Date.now().toString(36).toUpperCase();
     setOrderId(id);
     setSubmitted(true);
   };
+
+  const inputClass = (field: keyof OrderData) =>
+    `mt-1.5 w-full rounded-xl border px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-colors ${
+      errors[field]
+        ? "border-destructive focus:ring-destructive/40 bg-destructive/5"
+        : "border-input bg-background focus:ring-ring"
+    }`;
 
   if (submitted) {
     return (
@@ -96,6 +114,7 @@ const OrderForm = forwardRef<HTMLDivElement>((_, ref) => {
           viewport={{ once: true }}
           onSubmit={handleSubmit(onSubmit)}
           className="mt-8 space-y-5 rounded-2xl border border-border bg-background p-6 shadow-sm md:p-8"
+          noValidate
         >
           {/* Name */}
           <div>
@@ -103,9 +122,13 @@ const OrderForm = forwardRef<HTMLDivElement>((_, ref) => {
             <input
               {...register("name")}
               placeholder="সম্পূর্ণ নাম লিখুন"
-              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className={inputClass("name")}
             />
-            {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="mt-1.5 flex items-center gap-1 text-xs text-destructive">
+                <AlertCircle className="h-3 w-3" /> {errors.name.message}
+              </p>
+            )}
           </div>
 
           {/* Phone */}
@@ -115,9 +138,13 @@ const OrderForm = forwardRef<HTMLDivElement>((_, ref) => {
               {...register("phone")}
               placeholder="01XXXXXXXXX"
               type="tel"
-              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className={inputClass("phone")}
             />
-            {errors.phone && <p className="mt-1 text-xs text-destructive">{errors.phone.message}</p>}
+            {errors.phone && (
+              <p className="mt-1.5 flex items-center gap-1 text-xs text-destructive">
+                <AlertCircle className="h-3 w-3" /> {errors.phone.message}
+              </p>
+            )}
           </div>
 
           {/* Address */}
@@ -127,9 +154,13 @@ const OrderForm = forwardRef<HTMLDivElement>((_, ref) => {
               {...register("address")}
               placeholder="বাসা নম্বর, রাস্তা, এলাকা, জেলা"
               rows={2}
-              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+              className={`${inputClass("address")} resize-none`}
             />
-            {errors.address && <p className="mt-1 text-xs text-destructive">{errors.address.message}</p>}
+            {errors.address && (
+              <p className="mt-1.5 flex items-center gap-1 text-xs text-destructive">
+                <AlertCircle className="h-3 w-3" /> {errors.address.message}
+              </p>
+            )}
           </div>
 
           {/* Variant */}
@@ -137,14 +168,18 @@ const OrderForm = forwardRef<HTMLDivElement>((_, ref) => {
             <label className="text-sm font-medium text-foreground font-bengali">সাইজ নির্বাচন করুন *</label>
             <select
               {...register("variant")}
-              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className={inputClass("variant")}
             >
               <option value="">— সাইজ বাছুন —</option>
               {productVariants.map((v) => (
                 <option key={v.id} value={v.id}>{v.label}</option>
               ))}
             </select>
-            {errors.variant && <p className="mt-1 text-xs text-destructive">{errors.variant.message}</p>}
+            {errors.variant && (
+              <p className="mt-1.5 flex items-center gap-1 text-xs text-destructive">
+                <AlertCircle className="h-3 w-3" /> {errors.variant.message}
+              </p>
+            )}
           </div>
 
           {/* Quantity */}
@@ -155,8 +190,13 @@ const OrderForm = forwardRef<HTMLDivElement>((_, ref) => {
               type="number"
               min={1}
               max={20}
-              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className={inputClass("quantity")}
             />
+            {errors.quantity && (
+              <p className="mt-1.5 flex items-center gap-1 text-xs text-destructive">
+                <AlertCircle className="h-3 w-3" /> {errors.quantity.message}
+              </p>
+            )}
           </div>
 
           {/* Dynamic price */}
