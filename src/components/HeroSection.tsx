@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import honeyHero from "@/assets/honey-hero.png";
+import FlyingBees from "@/components/FlyingBees";
 
 const HeroSection = ({ onOrderClick }: { onOrderClick: () => void }) => {
   return (
