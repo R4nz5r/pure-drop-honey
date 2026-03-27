@@ -51,6 +51,10 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<"orders" | "variants">("orders");
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [pwForm, setPwForm] = useState({ current: "", newPw: "", confirm: "" });
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwError, setPwError] = useState("");
 
   // Orders state
   const [orders, setOrders] = useState<Order[]>([]);
