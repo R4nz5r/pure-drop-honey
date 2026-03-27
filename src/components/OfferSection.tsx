@@ -1,12 +1,17 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Gift, Truck, BookOpen } from "lucide-react";
+import { Gift, Truck, BookOpen, Loader2 } from "lucide-react";
 import honeyImg from "@/assets/honey-hero.png";
+import { supabase } from "@/integrations/supabase/client";
 
-const variants = [
-  { size: "250g", price: 450, originalPrice: 550, popular: false },
-  { size: "500g", price: 800, originalPrice: 1000, popular: true },
-  { size: "1kg", price: 1500, originalPrice: 1900, popular: false },
-];
+interface Variant {
+  id: string;
+  name: string;
+  price: number;
+  original_price: number | null;
+  stock_qty: number;
+  is_in_stock: boolean;
+}
 
 const bonuses = [
   { icon: BookOpen, text: "🎁 মধুর স্বাস্থ্য গাইড (ফ্রি)", sub: "Honey Health Guide (Free)" },
@@ -15,6 +20,27 @@ const bonuses = [
 ];
 
 const OfferSection = ({ onOrderClick }: { onOrderClick: (variant?: string) => void }) => {
+  const [variants, setVariants] = useState<Variant[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVariants = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("get-variants");
+        if (error) throw error;
+        if (data?.success) setVariants(data.data);
+      } catch (err) {
+        console.error("Failed to fetch variants:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchVariants();
+  }, []);
+
+  // Determine popular variant (middle one or 500g)
+  const getPopular = (v: Variant) => v.name === "500g";
+
   return (
     <section className="section-padding bg-background">
       <div className="container mx-auto max-w-5xl">
@@ -32,41 +58,60 @@ const OfferSection = ({ onOrderClick }: { onOrderClick: (variant?: string) => vo
 
         {/* Pricing cards */}
         <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {variants.map((v, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className={`relative rounded-2xl border-2 p-6 text-center shadow-sm transition-shadow hover:shadow-lg ${
-                v.popular ? "border-primary honey-glow bg-accent" : "border-border bg-card"
-              }`}
-            >
-              {v.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full honey-gradient px-4 py-1 text-xs font-bold text-primary-foreground">
-                  সবচেয়ে জনপ্রিয়
-                </div>
-              )}
-              <img src={honeyImg} alt="মৌচাক organic honey" className="mx-auto h-24 w-24 object-contain mb-2" />
-              <p className="text-3xl font-bold text-foreground mt-2">{v.size}</p>
-              <div className="mt-4">
-                <span className="text-lg text-muted-foreground line-through">৳{v.originalPrice}</span>
-                <span className="ml-2 text-4xl font-bold text-gradient-honey">৳{v.price}</span>
-              </div>
-              <div className="mt-2 inline-block rounded-full bg-secondary/10 px-3 py-1 text-sm font-medium text-secondary">
-                সাশ্রয় ৳{v.originalPrice - v.price}
-              </div>
-              <motion.button
-                onClick={() => onOrderClick(v.size)}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="mt-6 w-full rounded-full honey-gradient px-6 py-3 font-bold text-primary-foreground shadow-md transition-all"
-              >
-                অর্ডার করুন
-              </motion.button>
-            </motion.div>
-          ))}
+          {loading ? (
+            <div className="col-span-3 flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            variants.map((v, i) => {
+              const popular = getPopular(v);
+              return (
+                <motion.div
+                  key={v.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className={`relative rounded-2xl border-2 p-6 text-center shadow-sm transition-shadow hover:shadow-lg ${
+                    popular ? "border-primary honey-glow bg-accent" : "border-border bg-card"
+                  }`}
+                >
+                  {popular && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full honey-gradient px-4 py-1 text-xs font-bold text-primary-foreground">
+                      সবচেয়ে জনপ্রিয়
+                    </div>
+                  )}
+                  <img src={honeyImg} alt="মৌচাক organic honey" className="mx-auto h-24 w-24 object-contain mb-2" />
+                  <p className="text-3xl font-bold text-foreground mt-2">{v.name}</p>
+                  <div className="mt-4">
+                    {v.original_price && (
+                      <span className="text-lg text-muted-foreground line-through">৳{v.original_price}</span>
+                    )}
+                    <span className="ml-2 text-4xl font-bold text-gradient-honey">৳{v.price}</span>
+                  </div>
+                  {v.original_price && (
+                    <div className="mt-2 inline-block rounded-full bg-secondary/10 px-3 py-1 text-sm font-medium text-secondary">
+                      সাশ্রয় ৳{v.original_price - v.price}
+                    </div>
+                  )}
+                  {!v.is_in_stock && (
+                    <div className="mt-2 inline-block rounded-full bg-destructive/10 px-3 py-1 text-sm font-medium text-destructive">
+                      স্টক শেষ
+                    </div>
+                  )}
+                  <motion.button
+                    onClick={() => onOrderClick(v.name)}
+                    disabled={!v.is_in_stock}
+                    whileHover={{ scale: v.is_in_stock ? 1.03 : 1 }}
+                    whileTap={{ scale: v.is_in_stock ? 0.97 : 1 }}
+                    className="mt-6 w-full rounded-full honey-gradient px-6 py-3 font-bold text-primary-foreground shadow-md transition-all disabled:opacity-50"
+                  >
+                    {v.is_in_stock ? "অর্ডার করুন" : "স্টক শেষ"}
+                  </motion.button>
+                </motion.div>
+              );
+            })
+          )}
         </div>
 
         {/* Bonuses */}
