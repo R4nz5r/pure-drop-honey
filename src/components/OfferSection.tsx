@@ -13,7 +13,7 @@ const bonuses = [
   { icon: Truck, text: "🚚 প্রথম ২০ অর্ডারে ফ্রি ডেলিভারি", sub: "Free Delivery for First 20 Orders" },
 ];
 
-const OfferSection = ({ onOrderClick }: { onOrderClick: () => void }) => {
+const OfferSection = ({ onOrderClick }: { onOrderClick: (variant?: string) => void }) => {
   return (
     <section className="section-padding bg-background">
       <div className="container mx-auto max-w-5xl">
@@ -56,7 +56,7 @@ const OfferSection = ({ onOrderClick }: { onOrderClick: () => void }) => {
                 সাশ্রয় ৳{v.originalPrice - v.price}
               </div>
               <motion.button
-                onClick={onOrderClick}
+                onClick={() => onOrderClick(v.size)}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 className="mt-6 w-full rounded-full honey-gradient px-6 py-3 font-bold text-primary-foreground shadow-md transition-all"
