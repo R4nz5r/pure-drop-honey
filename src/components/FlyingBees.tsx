@@ -16,7 +16,7 @@ const flyPaths = [
 
 const FlyingBees = () => {
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-10 opacity-50">
       {bees.map((bee, i) => (
         <motion.div
           key={bee.id}
