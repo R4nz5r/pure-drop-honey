@@ -359,6 +359,7 @@ const AdminDashboard = () => {
                       <th className="px-4 py-3 text-left font-medium">Order</th>
                       <th className="px-4 py-3 text-left font-medium">Customer</th>
                       <th className="px-4 py-3 text-left font-medium">Phone</th>
+                      <th className="px-4 py-3 text-left font-medium">Address</th>
                       <th className="px-4 py-3 text-left font-medium">Product</th>
                       <th className="px-4 py-3 text-left font-medium">Total</th>
                       <th className="px-4 py-3 text-left font-medium">Status</th>
@@ -369,13 +370,13 @@ const AdminDashboard = () => {
                   <tbody className="divide-y divide-border">
                     {ordersLoading ? (
                       <tr>
-                        <td colSpan={8} className="px-4 py-8 text-center">
+                        <td colSpan={9} className="px-4 py-8 text-center">
                           <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
                         </td>
                       </tr>
                     ) : orders.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No orders found</td>
+                        <td colSpan={9} className="px-4 py-8 text-center text-muted-foreground">No orders found</td>
                       </tr>
                     ) : (
                       orders.map((order) => (
@@ -383,6 +384,7 @@ const AdminDashboard = () => {
                           <td className="px-4 py-3 font-mono text-xs">{order.order_ref}</td>
                           <td className="px-4 py-3">{order.customer_name}</td>
                           <td className="px-4 py-3">{order.phone}</td>
+                          <td className="px-4 py-3 max-w-[200px] truncate" title={order.address}>{order.address}</td>
                           <td className="px-4 py-3">
                             {order.product_variants?.name} × {order.quantity}
                           </td>
