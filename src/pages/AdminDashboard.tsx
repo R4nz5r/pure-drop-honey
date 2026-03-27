@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Package, ShoppingCart, RefreshCw, Search, ChevronLeft, ChevronRight, Edit2, Eye } from "lucide-react";
+import { Loader2, LogOut, Package, ShoppingCart, RefreshCw, Search, ChevronLeft, ChevronRight, Edit2, Eye, KeyRound, X } from "lucide-react";
 import { toast } from "sonner";
 
 type OrderStatus = "pending" | "confirmed" | "out_for_delivery" | "delivered" | "cancelled";
@@ -51,6 +51,10 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<"orders" | "variants">("orders");
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [pwForm, setPwForm] = useState({ current: "", newPw: "", confirm: "" });
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwError, setPwError] = useState("");
 
   // Orders state
   const [orders, setOrders] = useState<Order[]>([]);
@@ -203,6 +207,32 @@ const AdminDashboard = () => {
     navigate("/admin/login");
   };
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwError("");
+    if (pwForm.newPw.length < 6) { setPwError("Password must be at least 6 characters"); return; }
+    if (pwForm.newPw !== pwForm.confirm) { setPwError("Passwords do not match"); return; }
+    setPwLoading(true);
+    try {
+      // Verify current password by re-signing in
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
+        email: session?.user?.email,
+        password: pwForm.current,
+      });
+      if (signInErr) { setPwError("Current password is incorrect"); setPwLoading(false); return; }
+
+      const { error } = await supabase.auth.updateUser({ password: pwForm.newPw });
+      if (error) throw error;
+      toast.success("Password changed successfully!");
+      setShowChangePassword(false);
+      setPwForm({ current: "", newPw: "", confirm: "" });
+    } catch (err: any) {
+      setPwError(err.message || "Failed to change password");
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -213,18 +243,61 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border bg-card px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <h1 className="text-lg font-bold text-foreground">🍯 মৌচাক Admin</h1>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <LogOut className="h-4 w-4" /> Logout
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowChangePassword(true)}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <KeyRound className="h-4 w-4" /> Change Password
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="h-4 w-4" /> Logout
+            </button>
+          </div>
         </div>
       </header>
+
+      {/* Change Password Modal */}
+      {showChangePassword && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-card border border-border p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground">Change Password</h2>
+              <button onClick={() => { setShowChangePassword(false); setPwError(""); }} className="text-muted-foreground hover:text-foreground">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <div>
+                <label className="text-sm font-medium text-foreground">Current Password</label>
+                <input type="password" required value={pwForm.current} onChange={e => setPwForm(p => ({ ...p, current: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">New Password</label>
+                <input type="password" required value={pwForm.newPw} onChange={e => setPwForm(p => ({ ...p, newPw: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Confirm New Password</label>
+                <input type="password" required value={pwForm.confirm} onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+              {pwError && <p className="text-sm text-destructive bg-destructive/10 rounded-lg p-2">{pwError}</p>}
+              <button type="submit" disabled={pwLoading}
+                className="w-full rounded-xl bg-primary py-2.5 font-bold text-primary-foreground disabled:opacity-50 flex items-center justify-center gap-2">
+                {pwLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Updating...</> : "Update Password"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto p-4">
         {/* Tabs */}
