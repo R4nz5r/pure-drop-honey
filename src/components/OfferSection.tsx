@@ -56,7 +56,7 @@ const OfferSection = ({ onOrderClick }: { onOrderClick: (variant?: string) => vo
                 সাশ্রয় ৳{v.originalPrice - v.price}
               </div>
               <motion.button
-                onClick={onOrderClick}
+                onClick={() => onOrderClick(v.size)}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 className="mt-6 w-full rounded-full honey-gradient px-6 py-3 font-bold text-primary-foreground shadow-md transition-all"
