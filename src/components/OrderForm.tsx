@@ -28,6 +28,7 @@ interface OrderFormProps {
 const OrderForm = forwardRef<HTMLDivElement, OrderFormProps>(({ preselectedVariant }, ref) => {
   const [submitted, setSubmitted] = useState(false);
   const [orderId, setOrderId] = useState("");
+  const [submittedData, setSubmittedData] = useState<OrderData | null>(null);
 
   const {
     register,
