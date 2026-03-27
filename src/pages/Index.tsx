@@ -10,12 +10,24 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   const orderRef = useRef<HTMLDivElement>(null);
-  const [selectedVariant, setSelectedVariant] = useState("");
+  const [showSticky, setShowSticky] = useState(true);
 
   const scrollToOrder = (variant?: string) => {
     if (variant) setSelectedVariant(variant);
+    setShowSticky(false);
     orderRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  useEffect(() => {
+    const form = orderRef.current;
+    if (!form) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setShowSticky(!entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    obs.observe(form);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <div className="min-h-screen">
