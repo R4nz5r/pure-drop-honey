@@ -1,11 +1,9 @@
 import { motion } from "framer-motion";
 
 const bees = [
-  { id: 1, size: 28, startX: "10%", startY: "15%", duration: 6, delay: 0 },
-  { id: 2, size: 22, startX: "75%", startY: "25%", duration: 8, delay: 1.5 },
-  { id: 3, size: 18, startX: "50%", startY: "60%", duration: 7, delay: 3 },
-  { id: 4, size: 24, startX: "85%", startY: "70%", duration: 9, delay: 0.5 },
-  { id: 5, size: 16, startX: "30%", startY: "80%", duration: 6.5, delay: 2 },
+  { id: 1, size: 14, startX: "8%", startY: "12%", duration: 10, delay: 0 },
+  { id: 2, size: 11, startX: "80%", startY: "20%", duration: 13, delay: 2 },
+  { id: 3, size: 10, startX: "55%", startY: "75%", duration: 11, delay: 4 },
 ];
 
 const flyPaths = [
