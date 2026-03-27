@@ -207,6 +207,32 @@ const AdminDashboard = () => {
     navigate("/admin/login");
   };
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwError("");
+    if (pwForm.newPw.length < 6) { setPwError("Password must be at least 6 characters"); return; }
+    if (pwForm.newPw !== pwForm.confirm) { setPwError("Passwords do not match"); return; }
+    setPwLoading(true);
+    try {
+      // Verify current password by re-signing in
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
+        email: session?.user?.email,
+        password: pwForm.current,
+      });
+      if (signInErr) { setPwError("Current password is incorrect"); setPwLoading(false); return; }
+
+      const { error } = await supabase.auth.updateUser({ password: pwForm.newPw });
+      if (error) throw error;
+      toast.success("Password changed successfully!");
+      setShowChangePassword(false);
+      setPwForm({ current: "", newPw: "", confirm: "" });
+    } catch (err: any) {
+      setPwError(err.message || "Failed to change password");
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
