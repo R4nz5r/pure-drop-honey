@@ -41,12 +41,14 @@ const Index = () => {
       <Footer />
 
       {/* Sticky mobile CTA */}
-      <button
-        onClick={() => scrollToOrder()}
-        className="fixed bottom-4 left-4 right-4 z-50 md:hidden rounded-full honey-gradient py-3.5 text-base font-bold text-primary-foreground shadow-xl animate-pulse-glow"
-      >
-        🍯 Order Now
-      </button>
+      {showSticky && (
+        <button
+          onClick={() => scrollToOrder()}
+          className="fixed bottom-3 left-4 right-4 z-50 md:hidden rounded-full honey-gradient py-2.5 text-sm font-bold text-primary-foreground shadow-lg"
+        >
+          🍯 Order Now
+        </button>
+      )}
     </div>
   );
 };
