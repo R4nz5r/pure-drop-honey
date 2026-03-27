@@ -24,6 +24,7 @@ const testimonials = [
     location: "রাজশাহী",
     review: "ক্যাশ অন ডেলিভারি হওয়ায় কোনো ঝামেলা নেই। ৭ দিনের গ্যারান্টি আছে, তাই নির্ভয়ে অর্ডার করেছি।",
     stars: 5,
+    image: reviewerFatima,
   },
 ];
 
