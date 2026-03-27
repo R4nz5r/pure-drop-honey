@@ -343,6 +343,73 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* Edit Order Modal */}
+      {editingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-card border border-border p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground">Edit Order — {editingOrder.order_ref}</h2>
+              <button onClick={() => setEditingOrder(null)} className="text-muted-foreground hover:text-foreground">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium text-foreground">Customer Name</label>
+                <input
+                  value={editOrderForm.customer_name}
+                  onChange={(e) => setEditOrderForm(f => ({ ...f, customer_name: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Phone</label>
+                <input
+                  value={editOrderForm.phone}
+                  onChange={(e) => setEditOrderForm(f => ({ ...f, phone: e.target.value }))}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Address</label>
+                <textarea
+                  value={editOrderForm.address}
+                  onChange={(e) => setEditOrderForm(f => ({ ...f, address: e.target.value }))}
+                  rows={2}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Quantity</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={editOrderForm.quantity}
+                  onChange={(e) => setEditOrderForm(f => ({ ...f, quantity: Number(e.target.value) }))}
+                  className="mt-1 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={handleEditOrder}
+                  disabled={editOrderLoading}
+                  className="flex-1 rounded-xl bg-primary py-2.5 font-bold text-primary-foreground disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {editOrderLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving...</> : "Save Changes"}
+                </button>
+                <button
+                  onClick={() => setEditingOrder(null)}
+                  className="rounded-xl border border-input px-4 py-2.5 text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto p-4">
         {/* Tabs */}
         <div className="flex gap-2 mb-6">
