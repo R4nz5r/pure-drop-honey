@@ -17,6 +17,7 @@ const testimonials = [
     location: "চট্টগ্রাম",
     review: "অনেক জায়গা থেকে মধু কিনেছি, কিন্তু মৌচাকের মধু একদম আলাদা। স্বাদ ও গন্ধ অসাধারণ।",
     stars: 5,
+    image: reviewerKarim,
   },
   {
     name: "ফাতিমা আক্তার",
