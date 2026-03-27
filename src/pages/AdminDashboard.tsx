@@ -384,6 +384,7 @@ const AdminDashboard = () => {
                           <td className="px-4 py-3 font-mono text-xs">{order.order_ref}</td>
                           <td className="px-4 py-3">{order.customer_name}</td>
                           <td className="px-4 py-3">{order.phone}</td>
+                          <td className="px-4 py-3 max-w-[200px] truncate" title={order.address}>{order.address}</td>
                           <td className="px-4 py-3">
                             {order.product_variants?.name} × {order.quantity}
                           </td>
