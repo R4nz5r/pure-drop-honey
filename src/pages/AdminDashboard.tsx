@@ -65,6 +65,11 @@ const AdminDashboard = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
+  // Edit order state
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [editOrderForm, setEditOrderForm] = useState({ customer_name: "", phone: "", address: "", quantity: 1 });
+  const [editOrderLoading, setEditOrderLoading] = useState(false);
+
   // Variants state
   const [variants, setVariants] = useState<Variant[]>([]);
   const [variantsLoading, setVariantsLoading] = useState(false);

@@ -122,6 +122,89 @@ Deno.serve(async (req) => {
       );
     }
 
+    if (req.method === "PUT") {
+      // Edit order details
+      const body = await req.json();
+      const { order_id, customer_name, phone, address, quantity } = body;
+
+      if (!order_id) {
+        return new Response(
+          JSON.stringify({ success: false, message: "order_id is required" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const updateData: Record<string, unknown> = {};
+      if (customer_name !== undefined) updateData.customer_name = customer_name;
+      if (phone !== undefined) updateData.phone = phone;
+      if (address !== undefined) updateData.address = address;
+      if (quantity !== undefined) {
+        // Recalculate total_price
+        const { data: orderData } = await adminClient
+          .from("orders")
+          .select("unit_price, quantity, variant_id")
+          .eq("id", order_id)
+          .single();
+
+        if (!orderData) {
+          return new Response(
+            JSON.stringify({ success: false, message: "Order not found" }),
+            { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Adjust stock: restore old qty, deduct new qty
+        const qtyDiff = quantity - orderData.quantity;
+        if (qtyDiff !== 0) {
+          const { error: stockErr } = await adminClient
+            .from("product_variants")
+            .update({ stock_qty: adminClient.rpc ? undefined : undefined })
+            .eq("id", orderData.variant_id);
+
+          // Use raw update for stock adjustment
+          const { data: variant } = await adminClient
+            .from("product_variants")
+            .select("stock_qty")
+            .eq("id", orderData.variant_id)
+            .single();
+
+          if (variant && variant.stock_qty - qtyDiff < 0) {
+            return new Response(
+              JSON.stringify({ success: false, message: "Insufficient stock" }),
+              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+
+          await adminClient
+            .from("product_variants")
+            .update({ stock_qty: (variant?.stock_qty || 0) - qtyDiff })
+            .eq("id", orderData.variant_id);
+        }
+
+        updateData.quantity = quantity;
+        updateData.total_price = orderData.unit_price * quantity;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        return new Response(
+          JSON.stringify({ success: false, message: "No fields to update" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const { error: updateError } = await adminClient
+        .from("orders")
+        .update(updateData)
+        .eq("id", order_id);
+
+      if (updateError) throw updateError;
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Order updated successfully" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     if (req.method === "PATCH") {
       const body = await req.json();
       const { order_id, status, notes } = body;
@@ -141,7 +224,6 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Update order status
       const { error: updateError } = await adminClient
         .from("orders")
         .update({ status })
@@ -149,7 +231,6 @@ Deno.serve(async (req) => {
 
       if (updateError) throw updateError;
 
-      // Insert status history
       const { error: historyError } = await adminClient
         .from("order_status_history")
         .insert({
