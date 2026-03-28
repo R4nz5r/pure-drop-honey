@@ -608,6 +608,13 @@ const AdminDashboard = () => {
                               >
                                 <Eye className="h-4 w-4" />
                               </button>
+                              <button
+                                onClick={() => setDeletingOrder(order)}
+                                className="text-muted-foreground hover:text-destructive"
+                                title="Delete order"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
                             </div>
                           </td>
                         </tr>
