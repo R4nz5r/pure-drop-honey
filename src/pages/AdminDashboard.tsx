@@ -112,13 +112,6 @@ const AdminDashboard = () => {
       if (statusFilter) params.status = statusFilter;
       if (orderSearch) params.search = orderSearch;
 
-      const { data, error } = await supabase.functions.invoke("admin-orders", {
-        headers: getAuthHeaders(),
-        body: null,
-        method: "GET",
-      });
-
-      // Since we can't pass query params via invoke easily, use fetch
       const url = new URL(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-orders`);
       Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
 
