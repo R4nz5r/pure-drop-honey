@@ -14,8 +14,12 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
+        setIsRecovery(true);
+      }
+      // Also treat SIGNED_IN with a session as recovery if we're on this page
+      if (event === "SIGNED_IN" && session) {
         setIsRecovery(true);
       }
     });
@@ -35,7 +39,28 @@ const ResetPassword = () => {
       setIsRecovery(true);
     }
 
-    return () => subscription.unsubscribe();
+    // Check if already authenticated (event fired before listener)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setIsRecovery(true);
+      }
+    });
+
+    // Timeout fallback: if no recovery detected after 5s, show error
+    const timeout = setTimeout(() => {
+      setIsRecovery((prev) => {
+        if (!prev) {
+          setError("রিসেট লিংক অবৈধ বা এক্সপায়ার হয়ে গেছে।");
+          setLinkError(true);
+        }
+        return prev;
+      });
+    }, 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleReset = async (e: React.FormEvent) => {
