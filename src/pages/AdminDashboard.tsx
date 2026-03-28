@@ -851,7 +851,7 @@ const VariantEditForm = ({
       </div>
       <div className="flex gap-2">
         <button
-          onClick={() => onSave({ id: form.id, name: form.name, price: form.price, stock_qty: form.stock_qty, is_active: form.is_active, image_url: form.image_url })}
+          onClick={() => onSave({ id: form.id, name: form.name, price: form.price, original_price: form.original_price, stock_qty: form.stock_qty, is_active: form.is_active, image_url: form.image_url })}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
         >
           Save
