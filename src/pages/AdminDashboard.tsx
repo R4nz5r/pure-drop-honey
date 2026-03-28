@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Package, ShoppingCart, RefreshCw, Search, ChevronLeft, ChevronRight, Edit2, Eye, KeyRound, X } from "lucide-react";
+import { Loader2, LogOut, Package, ShoppingCart, RefreshCw, Search, ChevronLeft, ChevronRight, Edit2, Eye, KeyRound, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 type OrderStatus = "pending" | "confirmed" | "out_for_delivery" | "delivered" | "cancelled";

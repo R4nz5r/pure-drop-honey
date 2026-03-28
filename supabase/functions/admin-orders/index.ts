@@ -248,6 +248,67 @@ Deno.serve(async (req) => {
       );
     }
 
+    if (req.method === "DELETE") {
+      const body = await req.json();
+      const { order_id } = body;
+
+      if (!order_id) {
+        return new Response(
+          JSON.stringify({ success: false, message: "order_id is required" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Get order to restore stock
+      const { data: orderData } = await adminClient
+        .from("orders")
+        .select("variant_id, quantity, status")
+        .eq("id", order_id)
+        .single();
+
+      if (!orderData) {
+        return new Response(
+          JSON.stringify({ success: false, message: "Order not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Restore stock if order wasn't cancelled
+      if (orderData.status !== "cancelled") {
+        const { data: variant } = await adminClient
+          .from("product_variants")
+          .select("stock_qty")
+          .eq("id", orderData.variant_id)
+          .single();
+
+        if (variant) {
+          await adminClient
+            .from("product_variants")
+            .update({ stock_qty: variant.stock_qty + orderData.quantity })
+            .eq("id", orderData.variant_id);
+        }
+      }
+
+      // Delete status history first
+      await adminClient
+        .from("order_status_history")
+        .delete()
+        .eq("order_id", order_id);
+
+      // Delete the order
+      const { error: deleteError } = await adminClient
+        .from("orders")
+        .delete()
+        .eq("id", order_id);
+
+      if (deleteError) throw deleteError;
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Order deleted successfully" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     return new Response(
       JSON.stringify({ success: false, message: "Method not allowed" }),
       { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
