@@ -28,6 +28,7 @@ interface Variant {
   stock_qty: number;
   is_active: boolean;
   weight_order: number;
+  image_url: string | null;
 }
 
 const statusLabels: Record<OrderStatus, string> = {
