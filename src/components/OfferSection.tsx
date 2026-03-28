@@ -11,6 +11,7 @@ interface Variant {
   original_price: number | null;
   stock_qty: number;
   is_in_stock: boolean;
+  image_url?: string | null;
 }
 
 const bonuses = [
@@ -81,7 +82,12 @@ const OfferSection = ({ onOrderClick }: { onOrderClick: (variant?: string) => vo
                       সবচেয়ে জনপ্রিয়
                     </div>
                   )}
-                  <img src={honeyImg} alt="মৌচাক organic honey" className="mx-auto h-24 w-24 object-contain mb-2" />
+                  <img
+                    src={v.image_url || honeyImg}
+                    alt={`${v.name} মৌচাক organic honey`}
+                    className="mx-auto mb-2 h-24 w-24 object-contain"
+                    loading="lazy"
+                  />
                   <p className="text-3xl font-bold text-foreground mt-2">{v.name}</p>
                   <div className="mt-4">
                     {v.original_price && (

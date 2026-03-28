@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
 
     const { data, error } = await supabase
       .from("product_variants")
-      .select("id, name, price, original_price, stock_qty, is_active")
+      .select("id, name, price, original_price, stock_qty, is_active, image_url")
       .eq("is_active", true)
       .order("weight_order", { ascending: true });
 
