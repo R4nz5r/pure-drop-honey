@@ -187,17 +187,23 @@ const AdminDashboard = () => {
 
   const updateVariant = async (variant: Partial<Variant> & { id: string }) => {
     try {
-      const { data, error } = await supabase.functions.invoke("admin-variants", {
+      const url = `https://mfhbvojkmpuvkrwllrzg.supabase.co/functions/v1/admin-variants`;
+      const res = await fetch(url, {
         method: "PATCH",
-        body: variant,
+        headers: {
+          ...getAuthHeaders(),
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(variant),
       });
-      if (error) throw error;
-      if (data?.success) {
+      const result = await res.json();
+      if (result.success) {
         toast.success("Variant updated!");
         setEditingVariant(null);
         fetchVariants();
       } else {
-        toast.error(data?.message || "Failed to update variant");
+        toast.error(result.message || "Failed to update variant");
       }
     } catch (err: any) {
       console.error("Update variant error:", err);
