@@ -10,6 +10,7 @@ const ResetPassword = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
+  const [linkError, setLinkError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
