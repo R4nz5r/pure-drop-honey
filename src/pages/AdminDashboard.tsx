@@ -672,6 +672,7 @@ const AdminDashboard = () => {
                         variant={editingVariant}
                         onSave={updateVariant}
                         onCancel={() => setEditingVariant(null)}
+                        session={session}
                       />
                     ) : (
                       <>
