@@ -69,6 +69,8 @@ const AdminDashboard = () => {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [editOrderForm, setEditOrderForm] = useState({ customer_name: "", phone: "", address: "", quantity: 1 });
   const [editOrderLoading, setEditOrderLoading] = useState(false);
+  const [deletingOrder, setDeletingOrder] = useState<Order | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Variants state
   const [variants, setVariants] = useState<Variant[]>([]);
