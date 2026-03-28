@@ -60,8 +60,26 @@ const ResetPassword = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 shadow-lg text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
-          <p className="text-muted-foreground">Verifying reset link...</p>
+          {linkError ? (
+            <>
+              <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+                <KeyRound className="h-6 w-6 text-destructive" />
+              </div>
+              <h1 className="text-xl font-bold text-foreground mb-2">লিংক এক্সপায়ার্ড</h1>
+              <p className="text-sm text-muted-foreground mb-4">{error}</p>
+              <button
+                onClick={() => navigate("/admin/login")}
+                className="w-full rounded-xl bg-primary py-3 font-bold text-primary-foreground"
+              >
+                লগইনে ফিরে যান
+              </button>
+            </>
+          ) : (
+            <>
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary mb-4" />
+              <p className="text-muted-foreground">Verifying reset link...</p>
+            </>
+          )}
         </div>
       </div>
     );
