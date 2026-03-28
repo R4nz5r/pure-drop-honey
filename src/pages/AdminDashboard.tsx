@@ -682,7 +682,7 @@ const AdminDashboard = () => {
                         )}
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-lg font-bold text-foreground">{v.name}</h3>
+                            <h3 className="text-lg font-bold text-foreground font-sans text-left">{v.name}</h3>
                             <p className="text-2xl font-bold text-primary">৳{v.price.toLocaleString()}</p>
                             {v.original_price && (
                               <p className="text-sm text-muted-foreground line-through">৳{v.original_price}</p>
