@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Package, ShoppingCart, RefreshCw, Search, ChevronLeft, ChevronRight, Edit2, Eye, KeyRound, X } from "lucide-react";
+import { Loader2, LogOut, Package, ShoppingCart, RefreshCw, Search, ChevronLeft, ChevronRight, Edit2, Eye, KeyRound, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 type OrderStatus = "pending" | "confirmed" | "out_for_delivery" | "delivered" | "cancelled";
@@ -69,6 +69,8 @@ const AdminDashboard = () => {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [editOrderForm, setEditOrderForm] = useState({ customer_name: "", phone: "", address: "", quantity: 1 });
   const [editOrderLoading, setEditOrderLoading] = useState(false);
+  const [deletingOrder, setDeletingOrder] = useState<Order | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Variants state
   const [variants, setVariants] = useState<Variant[]>([]);
@@ -246,6 +248,35 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteOrder = async () => {
+    if (!deletingOrder) return;
+    setDeleteLoading(true);
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-orders`;
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          ...getAuthHeaders(),
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ order_id: deletingOrder.id }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Order deleted!");
+        setDeletingOrder(null);
+        fetchOrders();
+      } else {
+        toast.error(result.message);
+      }
+    } catch {
+      toast.error("Failed to delete order");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/admin/login");
@@ -418,6 +449,43 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      {deletingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-card border border-border p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-destructive">Delete Order</h2>
+              <button onClick={() => setDeletingOrder(null)} className="text-muted-foreground hover:text-foreground">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground mb-2">
+              Are you sure you want to delete order <span className="font-mono font-bold text-foreground">{deletingOrder.order_ref}</span>?
+            </p>
+            <p className="text-sm text-muted-foreground mb-1">Customer: <span className="text-foreground">{deletingOrder.customer_name}</span></p>
+            <p className="text-sm text-muted-foreground mb-4">Total: <span className="font-bold text-foreground">৳{deletingOrder.total_price.toLocaleString()}</span></p>
+            <p className="text-xs text-destructive/80 bg-destructive/10 rounded-lg p-2 mb-4">
+              ⚠️ This action cannot be undone. Stock will be restored if the order wasn't cancelled.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDeleteOrder}
+                disabled={deleteLoading}
+                className="flex-1 rounded-xl bg-destructive py-2.5 font-bold text-destructive-foreground disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deleteLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Deleting...</> : <><Trash2 className="h-4 w-4" /> Delete</>}
+              </button>
+              <button
+                onClick={() => setDeletingOrder(null)}
+                className="rounded-xl border border-input px-4 py-2.5 text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto p-4">
         {/* Tabs */}
         <div className="flex gap-2 mb-6">
@@ -539,6 +607,13 @@ const AdminDashboard = () => {
                                 title="View details"
                               >
                                 <Eye className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => setDeletingOrder(order)}
+                                className="text-muted-foreground hover:text-destructive"
+                                title="Delete order"
+                              >
+                                <Trash2 className="h-4 w-4" />
                               </button>
                             </div>
                           </td>
