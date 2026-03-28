@@ -19,9 +19,18 @@ const ResetPassword = () => {
       }
     });
 
-    // Check hash for recovery token
+    // Check hash for error or recovery token
     const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
+    if (hash.includes("error=")) {
+      const params = new URLSearchParams(hash.substring(1));
+      const errorCode = params.get("error_code") || params.get("error");
+      if (errorCode === "otp_expired") {
+        setError("রিসেট লিংক এক্সপায়ার হয়ে গেছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
+      } else {
+        setError("রিসেট লিংক অবৈধ। অনুগ্রহ করে আবার চেষ্টা করুন।");
+      }
+      setLinkError(true);
+    } else if (hash.includes("type=recovery")) {
       setIsRecovery(true);
     }
 
