@@ -675,6 +675,9 @@ const AdminDashboard = () => {
                       />
                     ) : (
                       <>
+                        {v.image_url && (
+                          <img src={v.image_url} alt={v.name} className="w-full h-32 object-cover rounded-lg mb-2" />
+                        )}
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="text-lg font-bold text-foreground">{v.name}</h3>
