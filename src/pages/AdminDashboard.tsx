@@ -322,7 +322,7 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-lg font-bold text-foreground">🍯 মৌচাক Admin</h1>
+          <h1 className="text-lg font-bold text-foreground font-sans">🍯 মৌচাক Admin Dashboard</h1>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowChangePassword(true)}
