@@ -248,6 +248,35 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteOrder = async () => {
+    if (!deletingOrder) return;
+    setDeleteLoading(true);
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-orders`;
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          ...getAuthHeaders(),
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ order_id: deletingOrder.id }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Order deleted!");
+        setDeletingOrder(null);
+        fetchOrders();
+      } else {
+        toast.error(result.message);
+      }
+    } catch {
+      toast.error("Failed to delete order");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/admin/login");
