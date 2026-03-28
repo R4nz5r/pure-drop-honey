@@ -719,15 +719,87 @@ const VariantEditForm = ({
   variant,
   onSave,
   onCancel,
+  session,
 }: {
   variant: Variant;
   onSave: (v: Partial<Variant> & { id: string }) => void;
   onCancel: () => void;
+  session: any;
 }) => {
   const [form, setForm] = useState(variant);
+  const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(variant.image_url);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${variant.id}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("variant-images")
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("variant-images")
+        .getPublicUrl(fileName);
+
+      setPreviewUrl(publicUrl);
+      setForm({ ...form, image_url: publicUrl });
+      toast.success("Image uploaded!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload image");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div className="space-y-3">
+      {/* Image Upload */}
+      <div>
+        <label className="text-xs font-medium text-muted-foreground">Photo</label>
+        <div className="mt-1">
+          {previewUrl ? (
+            <div className="relative">
+              <img src={previewUrl} alt="Variant" className="w-full h-32 object-cover rounded-lg" />
+              <button
+                onClick={() => { setPreviewUrl(null); setForm({ ...form, image_url: null }); }}
+                className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ) : (
+            <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-input rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+              {uploading ? (
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              ) : (
+                <>
+                  <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground mt-1">Upload photo</span>
+                </>
+              )}
+              <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploading} />
+            </label>
+          )}
+        </div>
+      </div>
       <div>
         <label className="text-xs font-medium text-muted-foreground">Name</label>
         <input
@@ -767,7 +839,7 @@ const VariantEditForm = ({
       </div>
       <div className="flex gap-2">
         <button
-          onClick={() => onSave({ id: form.id, name: form.name, price: form.price, stock_qty: form.stock_qty, is_active: form.is_active })}
+          onClick={() => onSave({ id: form.id, name: form.name, price: form.price, stock_qty: form.stock_qty, is_active: form.is_active, image_url: form.image_url })}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
         >
           Save
