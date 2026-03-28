@@ -186,27 +186,40 @@ const AdminDashboard = () => {
   };
 
   const updateVariant = async (variant: Partial<Variant> & { id: string }) => {
-    try {
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-variants`;
-      const res = await fetch(url, {
-        method: "PATCH",
-        headers: {
-          ...getAuthHeaders(),
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(variant),
-      });
-      const result = await res.json();
-      if (result.success) {
-        toast.success("Variant updated!");
-        setEditingVariant(null);
-        fetchVariants();
-      } else {
-        toast.error(result.message);
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-variants`;
+    const fetchOptions: RequestInit = {
+      method: "PATCH",
+      headers: {
+        ...getAuthHeaders(),
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(variant),
+    };
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const res = await fetch(url, { ...fetchOptions, signal: controller.signal });
+        clearTimeout(timeoutId);
+        const result = await res.json();
+        if (result.success) {
+          toast.success("Variant updated!");
+          setEditingVariant(null);
+          fetchVariants();
+          return;
+        } else {
+          toast.error(result.message);
+          return;
+        }
+      } catch (err) {
+        if (attempt === 0) {
+          toast.info("Retrying...");
+          continue;
+        }
+        toast.error("Failed to update variant. Please try again.");
       }
-    } catch {
-      toast.error("Failed to update variant");
     }
   };
 
