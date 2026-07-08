@@ -14,50 +14,90 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
+
+    const showLinkError = (message: string) => {
+      if (!isMounted) return;
+      setError(message);
+      setLinkError(true);
+      setIsRecovery(false);
+    };
+
+    const allowPasswordReset = () => {
+      if (!isMounted) return;
+      setError("");
+      setLinkError(false);
+      setIsRecovery(true);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
-        setIsRecovery(true);
+        allowPasswordReset();
       }
-      // Also treat SIGNED_IN with a session as recovery if we're on this page
-      if (event === "SIGNED_IN" && session) {
-        setIsRecovery(true);
+
+      // Code-based recovery links can establish a session before PASSWORD_RECOVERY fires.
+      if (event === "SIGNED_IN" && session && window.location.pathname === "/reset-password") {
+        allowPasswordReset();
       }
     });
 
-    // Check hash for error or recovery token
-    const hash = window.location.hash;
-    if (hash.includes("error=")) {
-      const params = new URLSearchParams(hash.substring(1));
-      const errorCode = params.get("error_code") || params.get("error");
+    const verifyResetLink = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const queryParams = new URLSearchParams(window.location.search);
+      const errorCode = hashParams.get("error_code") || queryParams.get("error_code") || hashParams.get("error") || queryParams.get("error");
+
+      if (errorCode) {
       if (errorCode === "otp_expired") {
-        setError("রিসেট লিংক এক্সপায়ার হয়ে গেছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
+          showLinkError("রিসেট লিংক এক্সপায়ার হয়ে গেছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
       } else {
-        setError("রিসেট লিংক অবৈধ। অনুগ্রহ করে আবার চেষ্টা করুন।");
+          showLinkError("রিসেট লিংক অবৈধ। অনুগ্রহ করে আবার চেষ্টা করুন।");
       }
-      setLinkError(true);
-    } else if (hash.includes("type=recovery")) {
-      setIsRecovery(true);
-    }
+        return;
+      }
 
-    // Check if already authenticated (event fired before listener)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setIsRecovery(true);
+      const isRecoveryLink = hashParams.get("type") === "recovery" || queryParams.get("type") === "recovery";
+      const hasTokens = hashParams.has("access_token") || hashParams.has("refresh_token");
+      const hasCode = queryParams.has("code");
+
+      if (hasCode) {
+        const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+        if (error) {
+          showLinkError("রিসেট লিংক অবৈধ বা এক্সপায়ার হয়ে গেছে।");
+          return;
+        }
+
+        window.history.replaceState({}, document.title, "/reset-password");
+        allowPasswordReset();
+        return;
       }
-    });
+
+      if (isRecoveryLink || hasTokens) {
+        allowPasswordReset();
+        return;
+      }
+
+      // Check if already authenticated after the link was processed before the listener registered.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        allowPasswordReset();
+        return;
+      }
+    };
+
+    verifyResetLink();
 
     // Timeout fallback: if no recovery detected after 5s, show error
     const timeout = setTimeout(() => {
       setIsRecovery((prev) => {
         if (!prev) {
-          setError("রিসেট লিংক অবৈধ বা এক্সপায়ার হয়ে গেছে।");
-          setLinkError(true);
+          showLinkError("রিসেট লিংক অবৈধ বা এক্সপায়ার হয়ে গেছে।");
         }
         return prev;
       });
     }, 5000);
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
       clearTimeout(timeout);
     };
