@@ -60,7 +60,7 @@ const ResetPassword = () => {
       const hasCode = queryParams.has("code");
 
       if (hasCode) {
-        const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+        const { error } = await supabase.auth.exchangeCodeForSession(queryParams.get("code")!);
         if (error) {
           showLinkError("রিসেট লিংক অবৈধ বা এক্সপায়ার হয়ে গেছে।");
           return;
