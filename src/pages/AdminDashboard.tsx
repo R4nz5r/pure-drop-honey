@@ -181,7 +181,7 @@ const AdminDashboard = () => {
 
   const updateVariant = async (variant: Partial<Variant> & { id: string }) => {
     try {
-      const url = `https://mfhbvojkmpuvkrwllrzg.supabase.co/functions/v1/admin-variants`;
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-variants`;
       const res = await fetch(url, {
         method: "PATCH",
         headers: {
@@ -202,6 +202,39 @@ const AdminDashboard = () => {
     } catch (err: any) {
       console.error("Update variant error:", err);
       toast.error(err.message || "Failed to update variant. Please try again.");
+    }
+  };
+
+  const createVariant = async (payload: {
+    name: string;
+    price: number;
+    original_price: number | null;
+    stock_qty: number;
+    is_active: boolean;
+    weight_order: number;
+  }) => {
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-variants`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          ...getAuthHeaders(),
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Variant created! You can now upload a photo by editing it.");
+        setIsCreatingVariant(false);
+        fetchVariants();
+      } else {
+        toast.error(result.message || "Failed to create variant");
+      }
+    } catch (err: any) {
+      console.error("Create variant error:", err);
+      toast.error(err.message || "Failed to create variant. Please try again.");
     }
   };
 
