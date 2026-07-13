@@ -910,3 +910,118 @@ const VariantEditForm = ({
 };
 
 export default AdminDashboard;
+
+const VariantCreateForm = ({
+  onSave,
+  onCancel,
+}: {
+  onSave: (v: {
+    name: string;
+    price: number;
+    original_price: number | null;
+    stock_qty: number;
+    is_active: boolean;
+    weight_order: number;
+  }) => void;
+  onCancel: () => void;
+}) => {
+  const [form, setForm] = useState({
+    name: "",
+    price: 0,
+    original_price: null as number | null,
+    stock_qty: 0,
+    is_active: true,
+    weight_order: 0,
+  });
+
+  const handleSubmit = () => {
+    if (!form.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    if (!form.price || form.price <= 0) {
+      toast.error("Price must be greater than 0");
+      return;
+    }
+    onSave(form);
+  };
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">
+        Create the variant first — you can upload a photo by editing it after it appears in the list.
+      </p>
+      <div>
+        <label className="text-xs font-medium text-muted-foreground">Name</label>
+        <input
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="e.g. 500g Jar"
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Original Price (৳)</label>
+          <input
+            type="number"
+            value={form.original_price ?? ""}
+            onChange={(e) => setForm({ ...form, original_price: e.target.value ? Number(e.target.value) : null })}
+            placeholder="e.g. 600"
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Offer Price (৳)</label>
+          <input
+            type="number"
+            value={form.price || ""}
+            onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Stock</label>
+          <input
+            type="number"
+            value={form.stock_qty}
+            onChange={(e) => setForm({ ...form, stock_qty: Number(e.target.value) })}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Sort Order</label>
+          <input
+            type="number"
+            value={form.weight_order}
+            onChange={(e) => setForm({ ...form, weight_order: Number(e.target.value) })}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={form.is_active}
+          onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+          className="rounded"
+        />
+        <label className="text-sm">Active</label>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={handleSubmit}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+        >
+          Create
+        </button>
+        <button onClick={onCancel} className="rounded-lg border border-input px-4 py-2 text-sm">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+};
+
