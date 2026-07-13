@@ -682,10 +682,28 @@ const AdminDashboard = () => {
           <div>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-foreground">Product Variants</h2>
-              <button onClick={fetchVariants} className="rounded-lg bg-muted p-2 hover:bg-accent">
-                <RefreshCw className={`h-4 w-4 ${variantsLoading ? "animate-spin" : ""}`} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsCreatingVariant(true)}
+                  className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+                >
+                  + Add Variant
+                </button>
+                <button onClick={fetchVariants} className="rounded-lg bg-muted p-2 hover:bg-accent">
+                  <RefreshCw className={`h-4 w-4 ${variantsLoading ? "animate-spin" : ""}`} />
+                </button>
+              </div>
             </div>
+
+            {isCreatingVariant && (
+              <div className="rounded-xl border border-border bg-card p-5 mb-4">
+                <h3 className="text-base font-bold text-foreground mb-3">New Variant</h3>
+                <VariantCreateForm
+                  onSave={createVariant}
+                  onCancel={() => setIsCreatingVariant(false)}
+                />
+              </div>
+            )}
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {variantsLoading ? (
