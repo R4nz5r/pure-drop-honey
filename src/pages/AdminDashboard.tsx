@@ -77,6 +77,7 @@ const AdminDashboard = () => {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [variantsLoading, setVariantsLoading] = useState(false);
   const [editingVariant, setEditingVariant] = useState<Variant | null>(null);
+  const [isCreatingVariant, setIsCreatingVariant] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
@@ -180,7 +181,7 @@ const AdminDashboard = () => {
 
   const updateVariant = async (variant: Partial<Variant> & { id: string }) => {
     try {
-      const url = `https://mfhbvojkmpuvkrwllrzg.supabase.co/functions/v1/admin-variants`;
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-variants`;
       const res = await fetch(url, {
         method: "PATCH",
         headers: {
@@ -201,6 +202,39 @@ const AdminDashboard = () => {
     } catch (err: any) {
       console.error("Update variant error:", err);
       toast.error(err.message || "Failed to update variant. Please try again.");
+    }
+  };
+
+  const createVariant = async (payload: {
+    name: string;
+    price: number;
+    original_price: number | null;
+    stock_qty: number;
+    is_active: boolean;
+    weight_order: number;
+  }) => {
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-variants`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          ...getAuthHeaders(),
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Variant created! You can now upload a photo by editing it.");
+        setIsCreatingVariant(false);
+        fetchVariants();
+      } else {
+        toast.error(result.message || "Failed to create variant");
+      }
+    } catch (err: any) {
+      console.error("Create variant error:", err);
+      toast.error(err.message || "Failed to create variant. Please try again.");
     }
   };
 
@@ -648,10 +682,28 @@ const AdminDashboard = () => {
           <div>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-foreground">Product Variants</h2>
-              <button onClick={fetchVariants} className="rounded-lg bg-muted p-2 hover:bg-accent">
-                <RefreshCw className={`h-4 w-4 ${variantsLoading ? "animate-spin" : ""}`} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsCreatingVariant(true)}
+                  className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+                >
+                  + Add Variant
+                </button>
+                <button onClick={fetchVariants} className="rounded-lg bg-muted p-2 hover:bg-accent">
+                  <RefreshCw className={`h-4 w-4 ${variantsLoading ? "animate-spin" : ""}`} />
+                </button>
+              </div>
             </div>
+
+            {isCreatingVariant && (
+              <div className="rounded-xl border border-border bg-card p-5 mb-4">
+                <h3 className="text-base font-bold text-foreground mb-3">New Variant</h3>
+                <VariantCreateForm
+                  onSave={createVariant}
+                  onCancel={() => setIsCreatingVariant(false)}
+                />
+              </div>
+            )}
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {variantsLoading ? (
@@ -858,3 +910,118 @@ const VariantEditForm = ({
 };
 
 export default AdminDashboard;
+
+const VariantCreateForm = ({
+  onSave,
+  onCancel,
+}: {
+  onSave: (v: {
+    name: string;
+    price: number;
+    original_price: number | null;
+    stock_qty: number;
+    is_active: boolean;
+    weight_order: number;
+  }) => void;
+  onCancel: () => void;
+}) => {
+  const [form, setForm] = useState({
+    name: "",
+    price: 0,
+    original_price: null as number | null,
+    stock_qty: 0,
+    is_active: true,
+    weight_order: 0,
+  });
+
+  const handleSubmit = () => {
+    if (!form.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    if (!form.price || form.price <= 0) {
+      toast.error("Price must be greater than 0");
+      return;
+    }
+    onSave(form);
+  };
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">
+        Create the variant first — you can upload a photo by editing it after it appears in the list.
+      </p>
+      <div>
+        <label className="text-xs font-medium text-muted-foreground">Name</label>
+        <input
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="e.g. 500g Jar"
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Original Price (৳)</label>
+          <input
+            type="number"
+            value={form.original_price ?? ""}
+            onChange={(e) => setForm({ ...form, original_price: e.target.value ? Number(e.target.value) : null })}
+            placeholder="e.g. 600"
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Offer Price (৳)</label>
+          <input
+            type="number"
+            value={form.price || ""}
+            onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Stock</label>
+          <input
+            type="number"
+            value={form.stock_qty}
+            onChange={(e) => setForm({ ...form, stock_qty: Number(e.target.value) })}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Sort Order</label>
+          <input
+            type="number"
+            value={form.weight_order}
+            onChange={(e) => setForm({ ...form, weight_order: Number(e.target.value) })}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          />
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={form.is_active}
+          onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+          className="rounded"
+        />
+        <label className="text-sm">Active</label>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={handleSubmit}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+        >
+          Create
+        </button>
+        <button onClick={onCancel} className="rounded-lg border border-input px-4 py-2 text-sm">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+};
+
