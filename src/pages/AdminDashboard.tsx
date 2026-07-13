@@ -77,6 +77,7 @@ const AdminDashboard = () => {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [variantsLoading, setVariantsLoading] = useState(false);
   const [editingVariant, setEditingVariant] = useState<Variant | null>(null);
+  const [isCreatingVariant, setIsCreatingVariant] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
