@@ -7,6 +7,7 @@ import OfferSection from "@/components/OfferSection";
 import CTASection from "@/components/CTASection";
 import OrderForm from "@/components/OrderForm";
 import Footer from "@/components/Footer";
+import OrderLookup from "@/components/OrderLookup";
 
 const Index = () => {
   const orderRef = useRef<HTMLDivElement>(null);
