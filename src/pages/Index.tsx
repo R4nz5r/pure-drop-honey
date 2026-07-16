@@ -40,6 +40,7 @@ const Index = () => {
       <OfferSection onOrderClick={scrollToOrder} />
       <CTASection onOrderClick={() => scrollToOrder()} />
       <OrderForm ref={orderRef} preselectedVariant={selectedVariant} />
+      <OrderLookup />
       <Footer />
 
       {/* Sticky mobile CTA */}
