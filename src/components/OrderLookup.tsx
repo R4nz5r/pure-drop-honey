@@ -41,20 +41,14 @@ const OrderLookup = () => {
     setError("");
     setOrder(null);
     try {
-      const { data, error: fnError } = await supabase.functions.invoke("get-order", {
-        method: "GET",
-        // @ts-expect-error - supabase-js supports query
-        query: { order_ref: trimmed },
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-order?order_ref=${encodeURIComponent(trimmed)}`;
+      const res = await fetch(url, {
+        headers: {
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
       });
-      // Fallback: some versions ignore `query`; call via URL
-      let payload = data;
-      if (!payload || fnError) {
-        const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-order?order_ref=${encodeURIComponent(trimmed)}`;
-        const res = await fetch(url, {
-          headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-        });
-        payload = await res.json();
-      }
+      const payload = await res.json();
       if (!payload?.success) {
         setError(payload?.message || "অর্ডার পাওয়া যায়নি");
       } else {
